@@ -3,109 +3,75 @@ package handler
 import (
 	"app/models"
 	"app/pkg/helper"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
-	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
-func (h *handler) Category(w http.ResponseWriter, r *http.Request) {
-
-	switch r.Method {
-	case "POST":
-		h.CreateCategory(w, r)
-	case "GET":
-		var (
-			values = r.URL.Query()
-			method = values.Get("method")
-		)
-
-		if method == "GET_LIST" {
-			h.GetListCategory(w, r)
-		} else if method == "GET" {
-			h.GetByIdCategory(w, r)
-		}
-	}
-}
-
-func (h *handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func (h *handler) CreateCategory(c *gin.Context) {
 
 	var createCategory models.CreateCategory
-
-	body, err := ioutil.ReadAll(r.Body)
+	err := c.ShouldBindJSON(&createCategory)
 	if err != nil {
-		h.handlerResponse(w, "error while read body: "+err.Error(), http.StatusBadRequest, nil)
-		return
-	}
-
-	err = json.Unmarshal(body, &createCategory)
-	if err != nil {
-		h.handlerResponse(w, "error while unmarshal body: "+err.Error(), http.StatusInternalServerError, nil)
+		h.handlerResponse(c, "error category should bind json", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.strg.Category().Create(&createCategory)
 	if err != nil {
-		h.handlerResponse(w, "error while storage category create:"+err.Error(), http.StatusInternalServerError, nil)
+		h.handlerResponse(c, "storage.category.create", http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	resp, err := h.strg.Category().GetByID(&models.CategoryPrimaryKey{Id: id})
 	if err != nil {
-		h.handlerResponse(w, "error while storage category get by id:"+err.Error(), http.StatusInternalServerError, nil)
+		h.handlerResponse(c, "storage.category.getById", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.handlerResponse(w, "Success", http.StatusOK, resp)
+	h.handlerResponse(c, "create category resposne", http.StatusOK, resp)
 }
 
-func (h *handler) GetByIdCategory(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetByIdCategory(c *gin.Context) {
 
-	var id string = r.URL.Query().Get("id")
-
+	var id string = c.Param("id")
 	if !helper.IsValidUUID(id) {
-		h.handlerResponse(w, "invalid id uuid", http.StatusBadRequest, nil)
+		h.handlerResponse(c, "is valid uuid", http.StatusBadRequest, "invalid id")
 		return
 	}
 
 	resp, err := h.strg.Category().GetByID(&models.CategoryPrimaryKey{Id: id})
 	if err != nil {
-		h.handlerResponse(w, "error while storage category get by id:"+err.Error(), http.StatusInternalServerError, nil)
+		h.handlerResponse(c, "storage.category.getById", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.handlerResponse(w, "Success", http.StatusOK, resp)
+	h.handlerResponse(c, "get by id category resposne", http.StatusOK, resp)
 }
 
-func (h *handler) GetListCategory(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetListCategory(c *gin.Context) {
 
-	var (
-		offsetStr = r.URL.Query().Get("offset")
-		limitStr  = r.URL.Query().Get("limit")
-		search    = r.URL.Query().Get("search")
-	)
-
-	offset, err := strconv.Atoi(offsetStr)
+	offset, err := h.getOffsetQuery(c.Query("offset"))
 	if err != nil {
-		h.handlerResponse(w, "error while offset: "+err.Error(), http.StatusBadRequest, nil)
+		h.handlerResponse(c, "get list category offset", http.StatusBadRequest, "invalid offset")
 		return
 	}
 
-	limit, err := strconv.Atoi(limitStr)
+	limit, err := h.getLimitQuery(c.Query("limit"))
 	if err != nil {
-		h.handlerResponse(w, "error while limit: "+err.Error(), http.StatusBadRequest, nil)
+		h.handlerResponse(c, "get list category limit", http.StatusBadRequest, "invalid limit")
 		return
 	}
 
 	resp, err := h.strg.Category().GetList(&models.CategoryGetListRequest{
 		Offset: offset,
 		Limit:  limit,
-		Search: search,
+		Search: c.Query("search"),
 	})
 	if err != nil {
-		h.handlerResponse(w, "error while storage category get list:"+err.Error(), http.StatusInternalServerError, nil)
+		h.handlerResponse(c, "storage.category.get_list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.handlerResponse(w, "Success", http.StatusOK, resp)
+	h.handlerResponse(c, "get list category resposne", http.StatusOK, resp)
 }

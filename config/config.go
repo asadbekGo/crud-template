@@ -8,7 +8,15 @@ import (
 	"github.com/spf13/cast"
 )
 
+const (
+	DebugMode   = "debug"
+	TestMode    = "test"
+	ReleaseMode = "release"
+)
+
 type Config struct {
+	Environment string
+
 	ServerHost string
 	HTTPPort   string
 
@@ -33,6 +41,8 @@ func Load() Config {
 	cfg.DefaultOffset = 0
 	cfg.DefaultLimit = 10
 
+	cfg.Environment = cast.ToString(getOrReturnDefaultValue("ENVIRONMENT", DebugMode))
+
 	cfg.ServerHost = cast.ToString(getOrReturnDefaultValue("SERVER_HOST", "localhost"))
 	cfg.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT", ":8080"))
 
@@ -41,6 +51,9 @@ func Load() Config {
 	cfg.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", "car_service"))
 	cfg.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "3066586"))
 	cfg.PostgresPort = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", 5432))
+
+	cfg.DefaultOffset = cast.ToInt(getOrReturnDefaultValue("OFFSEt", 0))
+	cfg.DefaultLimit = cast.ToInt(getOrReturnDefaultValue("LIMIT", 10))
 
 	return cfg
 }
