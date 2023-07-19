@@ -8,6 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Create category godoc
+// @ID create_category
+// @Router /category [POST]
+// @Summary Create Category
+// @Description Create Category
+// @Tags Category
+// @Accept json
+// @Procedure json
+// @Param category body models.CreateCategory true "CreateCategoryRequest"
+// @Success 200 {object} Response{data=string} "Success Request"
+// @Response 400 {object} Response{data=string} "Bad Request"
+// @Failure 500 {object} Response{data=string} "Server error"
 func (h *handler) CreateCategory(c *gin.Context) {
 
 	var createCategory models.CreateCategory
@@ -32,6 +44,18 @@ func (h *handler) CreateCategory(c *gin.Context) {
 	h.handlerResponse(c, "create category resposne", http.StatusOK, resp)
 }
 
+// GetByID category godoc
+// @ID get_by_id_category
+// @Router /category/{id} [GET]
+// @Summary Get By ID Category
+// @Description Get By ID Category
+// @Tags Category
+// @Accept json
+// @Procedure json
+// @Param id path string true "id"
+// @Success 200 {object} Response{data=string} "Success Request"
+// @Response 400 {object} Response{data=string} "Bad Request"
+// @Failure 500 {object} Response{data=string} "Server error"
 func (h *handler) GetByIdCategory(c *gin.Context) {
 
 	var id string = c.Param("id")
@@ -49,6 +73,19 @@ func (h *handler) GetByIdCategory(c *gin.Context) {
 	h.handlerResponse(c, "get by id category resposne", http.StatusOK, resp)
 }
 
+// GetList category godoc
+// @ID get_list_category
+// @Router /category [GET]
+// @Summary Get List Category
+// @Description Get List Category
+// @Tags Category
+// @Accept json
+// @Procedure json
+// @Param offset query string false "offset"
+// @Param limit query string false "limit"
+// @Success 200 {object} Response{data=string} "Success Request"
+// @Response 400 {object} Response{data=string} "Bad Request"
+// @Failure 500 {object} Response{data=string} "Server error"
 func (h *handler) GetListCategory(c *gin.Context) {
 
 	offset, err := h.getOffsetQuery(c.Query("offset"))
