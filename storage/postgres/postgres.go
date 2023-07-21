@@ -1,42 +1,44 @@
 package postgres
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4/pgxpool"
 
 	"app/config"
 	"app/storage"
 )
 
 type store struct {
-	db       *sql.DB
+	db       *pgxpool.Pool
 	category *categoryRepo
+	product  *productRepo
 }
 
 func NewConnectionPostgres(cfg *config.Config) (storage.StorageI, error) {
 
-	connet := fmt.Sprintf(
+	connect, err := pgxpool.ParseConfig(fmt.Sprintf(
 		"host=%s user=%s dbname=%s password=%s port=%d sslmode=disable",
 		cfg.PostgresHost,
 		cfg.PostgresUser,
 		cfg.PostgresDatabase,
 		cfg.PostgresPassword,
 		cfg.PostgresPort,
-	)
+	))
 
-	sqlDb, err := sql.Open("postgres", connet)
+	if err != nil {
+		return nil, err
+	}
+	connect.MaxConns = cfg.PostgresMaxConnection
+
+	pgxpool, err := pgxpool.ConnectConfig(context.Background(), connect)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := sqlDb.Ping(); err != nil {
-		return nil, err
-	}
-
 	return &store{
-		db: sqlDb,
+		db: pgxpool,
 	}, nil
 }
 
@@ -52,3 +54,15 @@ func (s *store) Category() storage.CategoryRepoI {
 
 	return s.category
 }
+
+func (s *store) Product() storage.ProductRepoI {
+
+	if s.product == nil {
+		s.product = NewProductRepo(s.db)
+	}
+
+	return s.product
+}
+
+// ROW -> lib/pg, pgxpool, sqlx
+// GORM -> SQLBUILDER, SQLC, GORM

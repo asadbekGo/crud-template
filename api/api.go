@@ -19,6 +19,15 @@ func NewApi(r *gin.Engine, cfg *config.Config, storage storage.StorageI, logger 
 	r.POST("/category", handler.CreateCategory)
 	r.GET("/category/:id", handler.GetByIdCategory)
 	r.GET("/category", handler.GetListCategory)
+	r.PUT("/category/:id", handler.UpdateCategory)
+	r.DELETE("/category/:id", handler.DeleteCategory)
+
+	r.POST("/product", handler.CreateProduct)
+	r.GET("/product/:id", handler.GetByIdProduct)
+	r.GET("/product", handler.GetListProduct)
+	r.PUT("/product/:id", handler.UpdateProduct)
+	r.PATCH("/product/:id", handler.PatchProduct)
+	r.DELETE("/product/:id", handler.DeleteProduct)
 
 	url := ginSwagger.URL("swagger/doc.json") // The url pointing to API definition
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

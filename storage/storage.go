@@ -1,14 +1,29 @@
 package storage
 
-import "app/models"
+import (
+	"app/api/models"
+	"context"
+)
 
 type StorageI interface {
 	Close()
 	Category() CategoryRepoI
+	Product() ProductRepoI
 }
 
 type CategoryRepoI interface {
-	Create(*models.CreateCategory) (string, error)
-	GetByID(*models.CategoryPrimaryKey) (*models.Category, error)
-	GetList(*models.CategoryGetListRequest) (*models.CategoryGetListResponse, error)
+	Create(context.Context, *models.CreateCategory) (string, error)
+	GetByID(context.Context, *models.CategoryPrimaryKey) (*models.Category, error)
+	GetList(context.Context, *models.CategoryGetListRequest) (*models.CategoryGetListResponse, error)
+	Update(context.Context, *models.UpdateCategory) (int64, error)
+	Delete(context.Context, *models.CategoryPrimaryKey) error
+}
+
+type ProductRepoI interface {
+	Create(context.Context, *models.CreateProduct) (string, error)
+	GetByID(context.Context, *models.ProductPrimaryKey) (*models.Product, error)
+	GetList(context.Context, *models.ProductGetListRequest) (*models.ProductGetListResponse, error)
+	Update(context.Context, *models.UpdateProduct) (int64, error)
+	Patch(context.Context, *models.PatchRequest) (int64, error)
+	Delete(context.Context, *models.ProductPrimaryKey) error
 }
