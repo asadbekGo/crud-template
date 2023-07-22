@@ -14,6 +14,7 @@ type store struct {
 	db       *pgxpool.Pool
 	category *categoryRepo
 	product  *productRepo
+	market   *marketRepo
 }
 
 func NewConnectionPostgres(cfg *config.Config) (storage.StorageI, error) {
@@ -64,5 +65,11 @@ func (s *store) Product() storage.ProductRepoI {
 	return s.product
 }
 
-// ROW -> lib/pg, pgxpool, sqlx
-// GORM -> SQLBUILDER, SQLC, GORM
+func (s *store) Market() storage.MarketRepoI {
+
+	if s.market == nil {
+		s.market = NewMarketRepo(s.db)
+	}
+
+	return s.market
+}

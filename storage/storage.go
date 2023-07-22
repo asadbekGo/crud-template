@@ -9,6 +9,7 @@ type StorageI interface {
 	Close()
 	Category() CategoryRepoI
 	Product() ProductRepoI
+	Market() MarketRepoI
 }
 
 type CategoryRepoI interface {
@@ -26,4 +27,13 @@ type ProductRepoI interface {
 	Update(context.Context, *models.UpdateProduct) (int64, error)
 	Patch(context.Context, *models.PatchRequest) (int64, error)
 	Delete(context.Context, *models.ProductPrimaryKey) error
+}
+
+type MarketRepoI interface {
+	Create(context.Context, *models.CreateMarket) (string, error)
+	GetByID(context.Context, *models.MarketPrimaryKey) (*models.Market, error)
+	GetList(context.Context, *models.MarketGetListRequest) (*models.MarketGetListResponse, error)
+	Update(context.Context, *models.UpdateMarket) (int64, error)
+	Patch(context.Context, *models.PatchRequest) (int64, error)
+	Delete(context.Context, *models.MarketPrimaryKey) error
 }

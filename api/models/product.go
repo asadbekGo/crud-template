@@ -1,35 +1,42 @@
 package models
 
-type CategoryPrimaryKey struct {
+type ProductPrimaryKey struct {
 	Id string `json:"id"`
 }
 
-type CreateCategory struct {
-	Title    string `json:"title"`
-	ParentID string `json:"parent_id"`
+type CreateProduct struct {
+	Name       string  `json:"name"`
+	Price      float64 `json:"price"`
+	CategoryId string  `json:"category_id"`
+	MarketIds  string  `json:"market_ids"`
 }
 
-type Category struct {
-	Id        string `json:"id"`
-	Title     string `json:"title"`
-	ParentID  string `json:"parent_id"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+type Product struct {
+	Id           string    `json:"id"`
+	Name         string    `json:"name"`
+	Price        float64   `json:"price"`
+	CategoryId   string    `json:"category_id"`
+	CategoryData *Category `json:"category_data"`
+	CreatedAt    string    `json:"created_at"`
+	UpdatedAt    string    `json:"updated_at"`
+	Market       []*Market `json:"market"`
 }
 
-type UpdateCategory struct {
-	Id       string `json:"id"`
-	Title    string `json:"title"`
-	ParentID string `json:"parent_id"`
+type UpdateProduct struct {
+	Id         string  `json:"id"`
+	Name       string  `json:"name"`
+	Price      float64 `json:"price"`
+	CategoryId string  `json:"category_id"`
+	MarketIds  string  `json:"market_ids"`
 }
 
-type CategoryGetListRequest struct {
+type ProductGetListRequest struct {
 	Offset int    `json:"offset"`
 	Limit  int    `json:"limit"`
 	Search string `json:"search"`
 }
 
-type CategoryGetListResponse struct {
-	Count      int         `json:"count"`
-	Categories []*Category `json:"categories"`
+type ProductGetListResponse struct {
+	Count    int        `json:"count"`
+	Products []*Product `json:"products"`
 }
