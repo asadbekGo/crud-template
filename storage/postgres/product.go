@@ -154,6 +154,7 @@ func (r *productRepo) GetList(ctx context.Context, req *models.ProductGetListReq
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var (
