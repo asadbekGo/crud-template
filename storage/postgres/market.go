@@ -188,6 +188,10 @@ func (r *marketRepo) GetList(ctx context.Context, req *models.MarketGetListReque
 		where += ` AND name ILIKE '%' || '` + req.Search + `' || '%'`
 	}
 
+	// if req.UserID != "" {
+	// 	where += fmt.Sprintf(" AND user_id = %d", req.UserId)
+	// }
+
 	query += where + offset + limit
 
 	rows, err := r.db.Query(ctx, query)

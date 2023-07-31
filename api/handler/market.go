@@ -2,7 +2,9 @@ package handler
 
 import (
 	"app/api/models"
+	"app/config"
 	"app/pkg/helper"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +12,7 @@ import (
 
 // Create market godoc
 // @ID create_market
-// @Router /market [POST]
+// @Router /v1/market [POST]
 // @Summary Create Market
 // @Description Create Market
 // @Tags Market
@@ -46,7 +48,7 @@ func (h *handler) CreateMarket(c *gin.Context) {
 
 // GetByID market godoc
 // @ID get_by_id_market
-// @Router /market/{id} [GET]
+// @Router /v1/market/{id} [GET]
 // @Summary Get By ID Market
 // @Description Get By ID Market
 // @Tags Market
@@ -73,9 +75,10 @@ func (h *handler) GetByIdMarket(c *gin.Context) {
 	h.handlerResponse(c, "get by id market resposne", http.StatusOK, resp)
 }
 
+// @Security ApiKeyAuth
 // GetList market godoc
 // @ID get_list_market
-// @Router /market [GET]
+// @Router /v1/market [GET]
 // @Summary Get List Market
 // @Description Get List Market
 // @Tags Market
@@ -87,6 +90,19 @@ func (h *handler) GetByIdMarket(c *gin.Context) {
 // @Response 400 {object} Response{data=string} "Bad Request"
 // @Failure 500 {object} Response{data=string} "Server error"
 func (h *handler) GetListMarket(c *gin.Context) {
+
+	info, exists := c.Get("Auth")
+	if !exists {
+		h.handlerResponse(c, "invalid info token", http.StatusBadRequest, "invalid info token")
+		return
+	}
+
+	user := info.(helper.TokenInfo)
+	fmt.Println(user)
+
+	if user.ClientType == config.ClientTypeSuper {
+		user.UserID = ""
+	}
 
 	offset, err := h.getOffsetQuery(c.Query("offset"))
 	if err != nil {
@@ -104,6 +120,7 @@ func (h *handler) GetListMarket(c *gin.Context) {
 		Offset: offset,
 		Limit:  limit,
 		Search: c.Query("search"),
+		// UserId: userId,
 	})
 	if err != nil {
 		h.handlerResponse(c, "storage.market.get_list", http.StatusInternalServerError, err.Error())
@@ -115,7 +132,7 @@ func (h *handler) GetListMarket(c *gin.Context) {
 
 // Update market godoc
 // @ID update_market
-// @Router /market/{id} [PUT]
+// @Router /v1/market/{id} [PUT]
 // @Summary Update Market
 // @Description Update Market
 // @Tags Market
@@ -167,7 +184,7 @@ func (h *handler) UpdateMarket(c *gin.Context) {
 
 // Patch market godoc
 // @ID patch_market
-// @Router /market/{id} [PATCH]
+// @Router /v1/market/{id} [PATCH]
 // @Summary Patch Market
 // @Description Patch Market
 // @Tags Market
@@ -219,7 +236,7 @@ func (h *handler) PatchMarket(c *gin.Context) {
 
 // Delete market godoc
 // @ID delete_market
-// @Router /market/{id} [DELETE]
+// @Router /v1/market/{id} [DELETE]
 // @Summary Delete Market
 // @Description Delete Market
 // @Tags Market

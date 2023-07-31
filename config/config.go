@@ -12,6 +12,8 @@ const (
 	DebugMode   = "debug"
 	TestMode    = "test"
 	ReleaseMode = "release"
+
+	ClientTypeSuper = "SUPERADMIN"
 )
 
 type Config struct {
@@ -19,6 +21,8 @@ type Config struct {
 
 	ServerHost string
 	HTTPPort   string
+
+	SecretKey string
 
 	PostgresHost          string
 	PostgresUser          string
@@ -46,6 +50,8 @@ func Load() Config {
 
 	cfg.ServerHost = cast.ToString(getOrReturnDefaultValue("SERVER_HOST", "localhost"))
 	cfg.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT", ":8080"))
+
+	cfg.SecretKey = cast.ToString(getOrReturnDefaultValue("SECRET_KEY", "=huiowp34"))
 
 	cfg.PostgresHost = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST", "localhost"))
 	cfg.PostgresUser = cast.ToString(getOrReturnDefaultValue("POSTGRES_USER", "asadbek"))
