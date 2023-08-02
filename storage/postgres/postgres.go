@@ -15,6 +15,7 @@ type store struct {
 	category *categoryRepo
 	product  *productRepo
 	market   *marketRepo
+	user     *userRepo
 }
 
 func NewConnectionPostgres(cfg *config.Config) (storage.StorageI, error) {
@@ -45,6 +46,15 @@ func NewConnectionPostgres(cfg *config.Config) (storage.StorageI, error) {
 
 func (s *store) Close() {
 	s.db.Close()
+}
+
+func (s *store) User() storage.UserRepoI {
+
+	if s.user == nil {
+		s.user = NewUserRepo(s.db)
+	}
+
+	return s.user
 }
 
 func (s *store) Category() storage.CategoryRepoI {

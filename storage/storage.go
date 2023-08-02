@@ -7,9 +7,18 @@ import (
 
 type StorageI interface {
 	Close()
+	User() UserRepoI
 	Category() CategoryRepoI
 	Product() ProductRepoI
 	Market() MarketRepoI
+}
+
+type UserRepoI interface {
+	Create(context.Context, *models.CreateUser) (string, error)
+	GetByID(context.Context, *models.UserPrimaryKey) (*models.User, error)
+	GetList(context.Context, *models.UserGetListRequest) (*models.UserGetListResponse, error)
+	Update(context.Context, *models.UpdateUser) (int64, error)
+	Delete(context.Context, *models.UserPrimaryKey) error
 }
 
 type CategoryRepoI interface {

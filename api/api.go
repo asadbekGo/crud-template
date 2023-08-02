@@ -24,6 +24,19 @@ func NewApi(r *gin.Engine, cfg *config.Config, storage storage.StorageI, cache s
 
 	v1 := r.Group("/v1")
 
+	// Login Api
+	r.POST("/login", handler.Login)
+
+	// Register Api
+	r.POST("/register", handler.Register)
+
+	// User Api
+	r.POST("/user", handler.AuthMiddleware(), handler.CreateUser)
+	r.GET("/user/:id", handler.AuthMiddleware(), handler.GetByIdUser)
+	r.GET("/user", handler.GetListUser)
+	r.PUT("/user/:id", handler.AuthMiddleware(), handler.UpdateUser)
+	r.DELETE("/user/:id", handler.AuthMiddleware(), handler.DeleteUser)
+
 	r.POST("/category", handler.CreateCategory)
 	r.GET("/category/:id", handler.GetByIdCategory)
 	r.GET("/category", handler.GetListCategory)
