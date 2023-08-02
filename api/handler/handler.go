@@ -13,6 +13,7 @@ type handler struct {
 	cfg    *config.Config
 	logger logger.LoggerI
 	strg   storage.StorageI
+	cache  storage.CacheI
 }
 
 type Response struct {
@@ -21,11 +22,12 @@ type Response struct {
 	Data        interface{} `json:"data"`
 }
 
-func NewHandler(cfg *config.Config, storage storage.StorageI, logger logger.LoggerI) *handler {
+func NewHandler(cfg *config.Config, storage storage.StorageI, cache storage.CacheI, logger logger.LoggerI) *handler {
 	return &handler{
 		cfg:    cfg,
 		logger: logger,
 		strg:   storage,
+		cache:  cache,
 	}
 }
 

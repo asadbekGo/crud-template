@@ -12,13 +12,13 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewApi(r *gin.Engine, cfg *config.Config, storage storage.StorageI, logger logger.LoggerI) {
+func NewApi(r *gin.Engine, cfg *config.Config, storage storage.StorageI, cache storage.CacheI, logger logger.LoggerI) {
 
 	// @securityDefinitions.apikey ApiKeyAuth
 	// @in header
 	// @name Authorization
 
-	handler := handler.NewHandler(cfg, storage, logger)
+	handler := handler.NewHandler(cfg, storage, cache, logger)
 
 	r.Use(customCORSMiddleware())
 

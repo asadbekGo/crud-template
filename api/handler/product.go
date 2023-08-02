@@ -3,7 +3,9 @@ package handler
 import (
 	"app/api/models"
 	"app/pkg/helper"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +40,12 @@ func (h *handler) CreateProduct(c *gin.Context) {
 	resp, err := h.strg.Product().GetByID(c.Request.Context(), &models.ProductPrimaryKey{Id: id})
 	if err != nil {
 		h.handlerResponse(c, "storage.product.getById", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = h.cache.Product().Delete()
+	if err != nil {
+		h.handlerResponse(c, "cache.Product.Delete", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -100,17 +108,52 @@ func (h *handler) GetListProduct(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.strg.Product().GetList(c.Request.Context(), &models.ProductGetListRequest{
-		Offset: offset,
-		Limit:  limit,
-		Search: c.Query("search"),
-	})
+	exists, err := h.cache.Product().Exists()
 	if err != nil {
-		h.handlerResponse(c, "storage.product.get_list", http.StatusInternalServerError, err.Error())
+		h.handlerResponse(c, "exists check products", http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	if !exists {
+		fmt.Println("POSTGRES")
+
+		pgTime := time.Now()
+		resp, err := h.strg.Product().GetList(c.Request.Context(), &models.ProductGetListRequest{
+			Offset: offset,
+			Limit:  limit,
+			Search: c.Query("search"),
+		})
+		if err != nil {
+			h.handlerResponse(c, "storage.product.get_list", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		fmt.Println("TIME:", time.Since(pgTime))
+
+		writeTime := time.Now()
+		err = h.cache.Product().CreateList(resp)
+		if err != nil {
+			h.handlerResponse(c, "cache.Product.CreateList", http.StatusInternalServerError, err.Error())
+			return
+		}
+		fmt.Println("WRITE TIME:", time.Since(writeTime))
+
+		h.handlerResponse(c, "get list product resposne", http.StatusOK, resp)
+		return
+	}
+
+	fmt.Println("REDIS")
+	rdTime := time.Now()
+	resp, err := h.cache.Product().GetList()
+	if err != nil {
+		h.handlerResponse(c, "cache.Product.GetList", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	fmt.Println("TIME:", time.Since(rdTime))
+
 	h.handlerResponse(c, "get list product resposne", http.StatusOK, resp)
+	return
 }
 
 // Update product godoc

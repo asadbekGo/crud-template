@@ -9,6 +9,7 @@ import (
 	"app/config"
 	"app/pkg/logger"
 	"app/storage/postgres"
+	"app/storage/redis"
 )
 
 func main() {
@@ -42,12 +43,19 @@ func main() {
 	if err != nil {
 		panic("postgres no connection: " + err.Error())
 	}
+	defer pgconn.Close()
+
+	cache, err := redis.NewConnectionRedis(&cfg)
+	if err != nil {
+		panic("redis no connection: " + err.Error())
+	}
+	defer cache.Close()
 
 	r := gin.New()
 
 	r.Use(gin.Recovery(), gin.Logger())
 
-	api.NewApi(r, &cfg, pgconn, log)
+	api.NewApi(r, &cfg, pgconn, cache, log)
 
 	fmt.Println("Listening server", cfg.ServerHost+cfg.HTTPPort)
 	err = r.Run(cfg.ServerHost + cfg.HTTPPort)
